@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART WORM: FAIRY TALE ADVENTURE - WAS & WERE CHALLENGE</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #1e1b4b 0%, #311b92 50%, #4a148c 100%);
+            color: #fff;
+            user-select: none;
+            overflow-x: hidden;
+        }
+        .font-game {
+            font-family: 'Fredoka One', cursive;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        /* D-Pad Touch Controller Styling for IFP */
+        .dpad-btn {
+            background: rgba(255, 255, 255, 0.18);
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            user-select: none;
+            touch-action: manipulation;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.1s ease;
+        }
+        .dpad-btn:active {
+            transform: scale(0.92);
+            background: rgba(255, 215, 0, 0.4);
+        }
+        .btn-action {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .btn-action:hover {
+            transform: translateY(-2px) scale(1.03);
+        }
+        .btn-action:active {
+            transform: translateY(1px) scale(0.98);
+        }
+        /* Canvas Styling */
+        #gameCanvas {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<div class="min-h-screen flex flex-col justify-between p-2 md:p-4 relative">
+    
+    <!-- Top Navigation / Header Bar -->
+    <header class="w-full glass-panel rounded-2xl p-3 mb-3 flex flex-wrap justify-between items-center z-10 gap-2">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-amber-400 flex items-center justify-center text-purple-900 text-xl font-bold shadow-lg">
+                <i class="fa-solid fa-worm"></i>
+            </div>
+            <div>
+                <h1 class="text-xl md:text-2xl font-game tracking-wide text-amber-300">SMART WORM</h1>
+                <p class="text-xs text-purple-200">Fairy Tale Adventure: Was & Were Challenge</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center space-x-2">
+            <button id="btnSoundToggle" onclick="toggleAudio()" class="btn-action bg-purple-700 hover:bg-purple-600 px-3 py-2 rounded-xl text-sm font-semibold flex items-center gap-2">
+                <i class="fa-solid fa-volume-high" id="soundIcon"></i>
+                <span class="hidden md:inline">Sound</span>
+            </button>
+            <button onclick="openTeacherDashboard()" class="btn-action bg-amber-500 hover:bg-amber-400 text-purple-950 font-bold px-3 py-2 rounded-xl text-sm flex items-center gap-2">
+                <i class="fa-solid fa-chalkboard-user"></i>
+                <span>Teacher Dashboard</span>
+            </button>
+            <button onclick="toggleFullScreen()" class="btn-action bg-indigo-600 hover:bg-indigo-500 px-3 py-2 rounded-xl text-sm font-semibold">
+                <i class="fa-solid fa-expand"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Screens Container -->
+    <main class="flex-grow flex items-center justify-center relative w-full">
+        
+        <!-- 1. START / MAIN MENU SCREEN -->
+        <section id="screenMenu" class="w-full max-w-4xl glass-panel rounded-3xl p-6 md:p-10 text-center flex flex-col items-center">
+            <div class="inline-block bg-amber-400/20 text-amber-300 px-4 py-1 rounded-full text-xs md:text-sm font-bold mb-3 border border-amber-400/40">
+                🇮🇩 Bahasa Indonesia & 🇬🇧 Simple English Guidance
+            </div>
+            <h2 class="text-3xl md:text-5xl font-game text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-400 to-indigo-300 mb-2">
+                FAIRY TALE ADVENTURE
+            </h2>
+            <p class="text-purple-200 text-sm md:text-base max-w-xl mb-6">
+                Eat the correct answer (WAS or WERE) to save the Fairy Tale Kingdom! Control your worm using Keyboard or IFP On-Screen Touch Controllers.
+            </p>
+
+            <!-- Mode Selection & Player Setup -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-6">
+                <!-- Player 1 Config -->
+                <div class="glass-card p-4 rounded-2xl border border-red-500/40 flex flex-col items-center">
+                    <div class="flex items-center space-x-2 mb-2 text-red-400 font-bold">
+                        <i class="fa-solid fa-crown text-amber-400 text-lg"></i>
+                        <span>Player 1: Red Hero</span>
+                    </div>
+                    <input type="text" id="p1NameInput" value="Red Hero" placeholder="Player 1 Name" class="w-full bg-purple-950/80 border border-purple-600 rounded-xl px-3 py-2 text-center text-sm text-white focus:outline-none focus:border-amber-400">
+                    <div class="mt-2 text-xs text-purple-300">
+                        <span class="bg-red-950/80 px-2 py-1 rounded border border-red-500/30 font-bold">WASD Keys</span> or Touch D-Pad Left
+                    </div>
+                </div>
+
+                <!-- Player 2 Config -->
+                <div class="glass-card p-4 rounded-2xl border border-cyan-500/40 flex flex-col items-center">
+                    <div class="flex items-center space-x-2 mb-2 text-cyan-400 font-bold">
+                        <i class="fa-solid fa-hat-wizard text-purple-300 text-lg"></i>
+                        <span>Player 2: Blue Explorer</span>
+                    </div>
+                    <input type="text" id="p2NameInput" value="Blue Explorer" placeholder="Player 2 Name" class="w-full bg-purple-950/80 border border-purple-600 rounded-xl px-3 py-2 text-center text-sm text-white focus:outline-none focus:border-amber-400">
+                    <div class="mt-2 text-xs text-purple-300">
+                        <span class="bg-cyan-950/80 px-2 py-1 rounded border border-cyan-500/30 font-bold">Arrow Keys</span> or Touch D-Pad Right
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Mode Buttons -->
+            <div class="flex flex-wrap justify-center gap-4 mb-6">
+                <button id="btnModeFriendly" onclick="selectMode('friendly')" class="btn-action glass-card px-6 py-3 rounded-2xl border-2 border-amber-400 text-amber-300 font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-users text-lg"></i>
+                    <span>Mode 1: Friendly Battle</span>
+                </button>
+                <button id="btnModeStory" onclick="selectMode('story')" class="btn-action glass-card px-6 py-3 rounded-2xl border-2 border-transparent text-purple-200 hover:text-white font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-lg"></i>
+                    <span>Mode 2: Story Adventure</span>
+                </button>
+            </div>
+
+            <!-- Start Button -->
+            <button onclick="startGame()" class="btn-action bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-game text-xl px-10 py-4 rounded-2xl shadow-xl border border-emerald-300/40 tracking-wider">
+                <i class="fa-solid fa-play mr-2"></i> START ADVENTURE
+            </button>
+        </section>
+
+        <!-- 2. GAME ARENA SCREEN -->
+        <section id="screenGame" class="hidden w-full flex flex-col items-center">
+            
+            <!-- Question Box Header -->
+            <div class="w-full max-w-5xl glass-panel rounded-2xl p-4 mb-3 text-center relative overflow-hidden">
+                <div class="flex justify-between items-center mb-1 text-xs text-amber-300 font-bold px-2">
+                    <span id="displayLevelName"><i class="fa-solid fa-castle"></i> Level 1: Cinderella's Castle</span>
+                    <span id="displayQuestionProgress">Question 1 / 10</span>
+                </div>
+                <!-- Main Question Text -->
+                <div id="displayQuestionText" class="text-lg md:text-2xl font-game text-white drop-shadow-md py-1">
+                    Cinderella _____ very sad before the party.
+                </div>
+                <div id="displayIndoHint" class="text-xs text-emerald-300 font-semibold italic">
+                    💡 Tip: Cinderella adalah subjek tunggal (She), gunakan WAS.
+                </div>
+            </div>
+
+            <!-- Players Live Score & Status -->
+            <div class="w-full max-w-5xl flex justify-between items-center mb-2 px-2">
+                <!-- P1 Score -->
+                <div class="flex items-center space-x-2 glass-card px-3 py-1.5 rounded-xl border border-red-500/40">
+                    <span class="w-3 h-3 rounded-full bg-red-400 animate-pulse"></span>
+                    <span id="p1DisplayTitle" class="font-bold text-xs md:text-sm text-red-300">Red Hero</span>
+                    <span class="text-amber-300 font-game text-base md:text-lg ml-2"><span id="p1Score">0</span> pts</span>
+                </div>
+
+                <!-- Match Control & Timer -->
+                <div class="flex items-center space-x-2">
+                    <div class="glass-card px-3 py-1.5 rounded-xl text-xs text-amber-300 font-bold flex items-center gap-1">
+                        <i class="fa-solid fa-clock"></i>
+                        <span id="gameTimer">03:00</span>
+                    </div>
+                    <button onclick="pauseGame()" class="btn-action bg-purple-800 hover:bg-purple-700 p-2 rounded-xl text-xs">
+                        <i class="fa-solid fa-pause" id="pauseBtnIcon"></i>
+                    </button>
+                </div>
+
+                <!-- P2 Score -->
+                <div class="flex items-center space-x-2 glass-card px-3 py-1.5 rounded-xl border border-cyan-500/40">
+                    <span id="p2DisplayTitle" class="font-bold text-xs md:text-sm text-cyan-300">Blue Explorer</span>
+                    <span class="text-amber-300 font-game text-base md:text-lg ml-2"><span id="p2Score">0</span> pts</span>
+                    <span class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+                </div>
+            </div>
+
+            <!-- Canvas Game Board & Touch Controls -->
+            <div class="relative w-full max-w-6xl flex flex-col items-center">
+                <canvas id="gameCanvas" width="900" height="500" class="rounded-2xl w-full h-auto bg-slate-900"></canvas>
+                
+                <!-- IFP Touch Screen Controllers (Visible for Touchscreen / Interactive Whiteboards) -->
+                <div class="w-full flex justify-between items-center mt-3 px-2 gap-4">
+                    <!-- P1 D-Pad Left Side -->
+                    <div class="flex flex-col items-center bg-red-950/40 p-2 rounded-2xl border border-red-500/30">
+                        <div class="text-[10px] font-bold text-red-300 mb-1">P1 CONTROLS</div>
+                        <div class="grid grid-cols-3 gap-1 w-32 h-32">
+                            <div></div>
+                            <button onclick="triggerP1Dir(0, -1)" class="dpad-btn"><i class="fa-solid fa-caret-up"></i></button>
+                            <div></div>
+                            <button onclick="triggerP1Dir(-1, 0)" class="dpad-btn"><i class="fa-solid fa-caret-left"></i></button>
+                            <div class="flex items-center justify-center text-amber-300 font-bold text-xs">P1</div>
+                            <button onclick="triggerP1Dir(1, 0)" class="dpad-btn"><i class="fa-solid fa-caret-right"></i></button>
+                            <div></div>
+                            <button onclick="triggerP1Dir(0, 1)" class="dpad-btn"><i class="fa-solid fa-caret-down"></i></button>
+                            <div></div>
+                        </div>
+                    </div>
+
+                    <!-- IFP Instruction Hint -->
+                    <div class="hidden md:flex flex-col items-center text-center text-xs text-purple-200 glass-card px-4 py-2 rounded-xl">
+                        <i class="fa-solid fa-hand-pointer text-amber-300 text-lg mb-1"></i>
+                        <span><b>IFP / Touch Ready:</b> Tap on-screen D-Pads or use keyboard!</span>
+                    </div>
+
+                    <!-- P2 D-Pad Right Side -->
+                    <div class="flex flex-col items-center bg-cyan-950/40 p-2 rounded-2xl border border-cyan-500/30">
+                        <div class="text-[10px] font-bold text-cyan-300 mb-1">P2 CONTROLS</div>
+                        <div class="grid grid-cols-3 gap-1 w-32 h-32">
+                            <div></div>
+                            <button onclick="triggerP2Dir(0, -1)" class="dpad-btn"><i class="fa-solid fa-caret-up"></i></button>
+                            <div></div>
+                            <button onclick="triggerP2Dir(-1, 0)" class="dpad-btn"><i class="fa-solid fa-caret-left"></i></button>
+                            <div class="flex items-center justify-center text-cyan-300 font-bold text-xs">P2</div>
+                            <button onclick="triggerP2Dir(1, 0)" class="dpad-btn"><i class="fa-solid fa-caret-right"></i></button>
+                            <div></div>
+                            <button onclick="triggerP2Dir(0, 1)" class="dpad-btn"><i class="fa-solid fa-caret-down"></i></button>
+                            <div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback Overlay Popup -->
+                <div id="feedbackModal" class="hidden absolute inset-0 bg-black/60 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 z-20">
+                    <div class="glass-panel bg-purple-950/95 p-6 rounded-3xl max-w-md text-center border-2 border-amber-400 animate-bounce-short">
+                        <div id="feedbackIcon" class="text-5xl mb-2">🎉</div>
+                        <h3 id="feedbackTitle" class="text-2xl font-game text-amber-300 mb-2">Excellent!</h3>
+                        <p id="feedbackText" class="text-sm text-purple-100 mb-4">The answer is WAS!</p>
+                        <button onclick="closeFeedback()" class="btn-action bg-amber-500 text-purple-950 font-bold px-6 py-2 rounded-xl text-sm">
+                            Continue <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 3. FINAL RESULTS SCREEN -->
+        <section id="screenResults" class="hidden w-full max-w-3xl glass-panel rounded-3xl p-6 md:p-8 text-center flex flex-col items-center">
+            <div class="text-5xl mb-2">🏆</div>
+            <h2 class="text-3xl md:text-4xl font-game text-amber-300 mb-1">GAME COMPLETED!</h2>
+            <p id="winnerAnnouncement" class="text-lg text-emerald-300 font-bold mb-6">Player 1 wins the Fairy Tale Champion!</p>
+
+            <!-- Results Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-6">
+                <!-- P1 Result -->
+                <div class="glass-card p-4 rounded-2xl border border-red-500/50">
+                    <h3 id="resP1Name" class="font-bold text-red-400 text-lg mb-2">Player 1</h3>
+                    <div class="text-3xl font-game text-amber-300 mb-2"><span id="resP1Score">0</span> pts</div>
+                    <div class="text-xs text-purple-200 space-y-1">
+                        <div>Correct Answers: <b id="resP1Correct" class="text-emerald-400">0</b></div>
+                        <div>Wrong Answers: <b id="resP1Wrong" class="text-rose-400">0</b></div>
+                    </div>
+                </div>
+
+                <!-- P2 Result -->
+                <div class="glass-card p-4 rounded-2xl border border-cyan-500/50">
+                    <h3 id="resP2Name" class="font-bold text-cyan-400 text-lg mb-2">Player 2</h3>
+                    <div class="text-3xl font-game text-amber-300 mb-2"><span id="resP2Score">0</span> pts</div>
+                    <div class="text-xs text-purple-200 space-y-1">
+                        <div>Correct Answers: <b id="resP2Correct" class="text-emerald-400">0</b></div>
+                        <div>Wrong Answers: <b id="resP2Wrong" class="text-rose-400">0</b></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Info -->
+            <div class="w-full glass-card p-3 rounded-xl mb-6 text-xs text-purple-200 flex justify-around">
+                <span>Total Magic Stars Collected: <b id="resTotalStars" class="text-amber-300">0</b> ⭐</span>
+                <span>Time Taken: <b id="resTimeTaken" class="text-indigo-300">00:00</b></span>
+            </div>
+
+            <div class="flex gap-4">
+                <button onclick="showMenu()" class="btn-action bg-purple-700 hover:bg-purple-600 px-6 py-3 rounded-xl text-sm font-bold">
+                    <i class="fa-solid fa-house mr-2"></i> Main Menu
+                </button>
+                <button onclick="startGame()" class="btn-action bg-emerald-600 hover:bg-emerald-500 px-6 py-3 rounded-xl text-sm font-bold">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Play Again
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center text-xs text-purple-300/60 mt-4 py-2">
+        Smart Worm: Fairy Tale Adventure &copy; English Grade 7 Was & Were Challenge
+    </footer>
+</div>
+
+
+<!-- TEACHER DASHBOARD MODAL -->
+<div id="modalTeacher" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-3 md:p-6 overflow-y-auto">
+    <div class="glass-panel bg-slate-900/95 w-full max-w-5xl rounded-3xl border border-amber-400/40 p-5 md:p-8 max-h-[90vh] flex flex-col">
+        
+        <!-- Dashboard Header -->
+        <div class="flex justify-between items-center mb-6 border-b border-purple-800 pb-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-amber-500 text-purple-950 flex items-center justify-center text-xl font-bold">
+                    <i class="fa-solid fa-chalkboard-user"></i>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-game text-amber-300">Teacher Dashboard</h2>
+                    <p class="text-xs text-purple-300">Manajemen Soal & Analisis Hasil Belajar Siswa</p>
+                </div>
+            </div>
+            <button onclick="closeTeacherDashboard()" class="text-purple-400 hover:text-white text-2xl font-bold">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Dashboard Tabs -->
+        <div class="flex space-x-2 mb-4 border-b border-purple-800/60">
+            <button id="tabBtnQuestions" onclick="switchTeacherTab('questions')" class="px-4 py-2 text-sm font-bold rounded-t-xl bg-amber-500 text-purple-950">
+                <i class="fa-solid fa-list-check mr-2"></i> Question Bank Manager
+            </button>
+            <button id="tabBtnAnalytics" onclick="switchTeacherTab('analytics')" class="px-4 py-2 text-sm font-bold rounded-t-xl text-purple-300 hover:text-white">
+                <i class="fa-solid fa-chart-line mr-2"></i> Student Analytics & Export
+            </button>
+            <button id="tabBtnSettings" onclick="switchTeacherTab('settings')" class="px-4 py-2 text-sm font-bold rounded-t-xl text-purple-300 hover:text-white">
+                <i class="fa-solid fa-gear mr-2"></i> Game Settings
+            </button>
+        </div>
+
+        <!-- TAB 1: QUESTION BANK MANAGER -->
+        <div id="tabQuestions" class="flex-grow flex flex-col min-h-0">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-purple-200">Daftar Soal WAS / WERE (Total: <span id="qCount">10</span>)</h3>
+                <button onclick="openQuestionForm()" class="btn-action bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-plus"></i> Add New Question
+                </button>
+            </div>
+
+            <!-- Question Table Container -->
+            <div class="flex-grow overflow-y-auto glass-card rounded-xl border border-purple-800">
+                <table class="w-full text-left text-xs text-purple-200">
+                    <thead class="bg-purple-950/80 text-amber-300 font-bold sticky top-0">
+                        <tr>
+                            <th class="p-3">#</th>
+                            <th class="p-3">Question Sentence</th>
+                            <th class="p-3">Options</th>
+                            <th class="p-3">Correct Answer</th>
+                            <th class="p-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questionTableBody" class="divide-y divide-purple-900/50">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 2: ANALYTICS -->
+        <div id="tabAnalytics" class="hidden flex-grow flex flex-col min-h-0">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-purple-200">Analisis Kesalahan & Score History</h3>
+                <button onclick="exportResultsCSV()" class="btn-action bg-indigo-600 hover:bg-indigo-500 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1">
+                    <i class="fa-solid fa-file-csv"></i> Export Results (CSV)
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div class="glass-card p-3 rounded-xl text-center">
+                    <div class="text-xs text-purple-300">Total Games Played</div>
+                    <div id="statTotalGames" class="text-2xl font-game text-amber-300">0</div>
+                </div>
+                <div class="glass-card p-3 rounded-xl text-center">
+                    <div class="text-xs text-purple-300">Average Accuracy</div>
+                    <div id="statAvgAccuracy" class="text-2xl font-game text-emerald-400">0%</div>
+                </div>
+                <div class="glass-card p-3 rounded-xl text-center">
+                    <div class="text-xs text-purple-300">Most Common Error</div>
+                    <div id="statCommonError" class="text-2xl font-game text-rose-400">-</div>
+                </div>
+            </div>
+
+            <div class="flex-grow overflow-y-auto glass-card rounded-xl border border-purple-800">
+                <table class="w-full text-left text-xs text-purple-200">
+                    <thead class="bg-purple-950/80 text-amber-300 font-bold sticky top-0">
+                        <tr>
+                            <th class="p-3">Date/Time</th>
+                            <th class="p-3">P1 Name & Score</th>
+                            <th class="p-3">P2 Name & Score</th>
+                            <th class="p-3">Winner</th>
+                            <th class="p-3">Accuracy</th>
+                        </tr>
+                    </thead>
+                    <tbody id="analyticsTableBody" class="divide-y divide-purple-900/50">
+                        <tr><td colspan="5" class="p-4 text-center text-purple-400">No match records yet. Play a game to see stats!</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 3: GAME SETTINGS -->
+        <div id="tabSettings" class="hidden flex-grow space-y-4">
+            <div class="glass-card p-4 rounded-xl border border-purple-800 max-w-md">
+                <h4 class="font-bold text-amber-300 text-sm mb-3">Game Match Parameters</h4>
+                <div class="space-y-3 text-xs">
+                    <div>
+                        <label class="block text-purple-200 mb-1">Timer Duration (Seconds):</label>
+                        <input type="number" id="settingTimer" value="180" class="w-full bg-purple-950 border border-purple-700 rounded-lg p-2 text-white">
+                    </div>
+                    <div>
+                        <label class="block text-purple-200 mb-1">Game Speed:</label>
+                        <select id="settingSpeed" class="w-full bg-purple-950 border border-purple-700 rounded-lg p-2 text-white">
+                            <option value="120">Normal (Recommended)</option>
+                            <option value="160">Slow (Beginners)</option>
+                            <option value="90">Fast (Challenge)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ADD/EDIT QUESTION MODAL -->
+<div id="modalQuestionForm" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[60] flex items-center justify-center p-4">
+    <div class="glass-panel bg-slate-900 p-6 rounded-2xl w-full max-w-lg border border-amber-400/50">
+        <h3 id="qFormTitle" class="text-xl font-game text-amber-300 mb-4">Add New Question</h3>
+        <form id="formQuestion" onsubmit="saveQuestion(event)" class="space-y-3 text-xs">
+            <input type="hidden" id="qEditIndex" value="-1">
+            <div>
+                <label class="block text-purple-200 mb-1">Question Sentence (Use _____ for blank):</label>
+                <input type="text" id="qInputText" required placeholder="Cinderella _____ very sad." class="w-full bg-purple-950 border border-purple-700 rounded-lg p-2 text-white">
+            </div>
+            <div class="grid grid-cols-3 gap-2">
+                <div>
+                    <label class="block text-purple-200 mb-1">Option A:</label>
+                    <input type="text" id="qInputOptA" required placeholder="was" class="w-full bg-purple-950 border border-purple-700 rounded-lg p-2 text-white">
+                </div>
+                <div>
+                    <label class="block text-purple-200 mb-1">Option B:</label>
+                    <input type="text" id="qInputOptB" required placeholder="were" class="w-full bg-purple-950 border border-purple-700 rounded-lg p-2 text-white">
+                </div>
+                <div>
+                    <label class="block text-purple-200 mb-1">Option C:</label>
+                    <input type="text" id="qInputOptC" required placeholder="is" class="w-full bg-purple-950 border border-purple-700 rounded-lg p-2 text-white">
+                </div>
+            </div>
+            <div>
+                <label class="block text-purple-200 mb-1">Correct Answer:</label>
+                <select id="qInputCorrect" class="w-full bg-purple-950 border border-purple-700 rounded-lg p-2 text-white">
+                    <option value="was">was</option>
+                    <option value="were">were</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-purple-200 mb-1">Indonesian Explanation / Tip:</label>
+                <input type="text" id="qInputTip" placeholder="Cinderella adalah subjek tunggal (she), maka gunakan WAS." class="w-full bg-purple-950 border border-purple-700 rounded-lg p-2 text-white">
+            </div>
+            <div class="flex justify-end space-x-2 pt-3">
+                <button type="button" onclick="closeQuestionForm()" class="px-4 py-2 rounded-lg bg-purple-900 hover:bg-purple-800 text-purple-200">Cancel</button>
+                <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 font-bold text-white">Save Question</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<!-- GAME LOGIC SCRIPT -->
+<script>
+/**
+ * SMART WORM: FAIRY TALE ADVENTURE - GAME ENGINE & SYSTEM LOGIC
+ */
+
+// --- PRELOADED BANK OF 10 QUESTIONS ---
+const defaultQuestions = [
+    {
+        id: 1,
+        question: "Cinderella _____ very sad before the party.",
+        options: ["were", "was", "are"],
+        correct: "was",
+        tip: "Cinderella adalah subjek tunggal (She), gunakan WAS."
+    },
+    {
+        id: 2,
+        question: "The princess and the prince _____ happy together.",
+        options: ["was", "is", "were"],
+        correct: "were",
+        tip: "The princess and the prince adalah jamak (They / 2 orang), gunakan WERE."
+    },
+    {
+        id: 3,
+        question: "The glass slippers _____ beautiful.",
+        options: ["were", "was", "am"],
+        correct: "were",
+        tip: "Slippers berkahiran -s (plural / jamak), gunakan WERE."
+    },
+    {
+        id: 4,
+        question: "The wolf _____ hungry in the forest.",
+        options: ["were", "was", "are"],
+        correct: "was",
+        tip: "The wolf (seekor serigala / tunggal), gunakan WAS."
+    },
+    {
+        id: 5,
+        question: "The three little pigs _____ afraid of the wolf.",
+        options: ["was", "were", "is"],
+        correct: "were",
+        tip: "Three little pigs (3 ekor babi / jamak), gunakan WERE."
+    },
+    {
+        id: 6,
+        question: "Rapunzel _____ in a tall tower.",
+        options: ["were", "was", "are"],
+        correct: "was",
+        tip: "Rapunzel adalah tunggal (She), gunakan WAS."
+    },
+    {
+        id: 7,
+        question: "The dwarfs _____ kind and friendly.",
+        options: ["was", "were", "am"],
+        correct: "were",
+        tip: "The dwarfs (kuraci-kuraci / jamak), gunakan WERE."
+    },
+    {
+        id: 8,
+        question: "The queen _____ jealous of Snow White.",
+        options: ["were", "was", "are"],
+        correct: "was",
+        tip: "The queen (sang ratu / tunggal), gunakan WAS."
+    },
+    {
+        id: 9,
+        question: "The castle _____ dark and mysterious.",
+        options: ["were", "was", "is"],
+        correct: "was",
+        tip: "The castle (sebuah istana / tunggal), gunakan WAS."
+    },
+    {
+        id: 10,
+        question: "The children _____ excited about the fairy tale.",
+        options: ["was", "were", "is"],
+        correct: "were",
+        tip: "Children adalah bentuk jamak dari child, gunakan WERE."
+    }
+];
+
+// --- LEVEL THEMES DEFINITION ---
+const fairyTaleLevels = [
+    { level: 1, name: "Cinderella's Castle", bgGradient: ["#2a0845", "#6441a5"], accent: "#fbbf24", icon: "fa-castle" },
+    { level: 2, name: "Snow White's Forest", bgGradient: ["#093028", "#237a57"], accent: "#34d399", icon: "fa-tree" },
+    { level: 3, name: "Rapunzel's Tower", bgGradient: ["#3b0764", "#7e22ce"], accent: "#f472b6", icon: "fa-tower-observation" },
+    { level: 4, name: "The Three Little Pigs' Village", bgGradient: ["#451a03", "#78350f"], accent: "#fb923c", icon: "fa-house" },
+    { level: 5, name: "The Enchanted Kingdom", bgGradient: ["#312e81", "#4338ca"], accent: "#facc15", icon: "fa-crown" }
+];
+
+// --- GAME STATE GLOBAL VARS ---
+let questionsBank = [...defaultQuestions];
+let activeQuestions = [];
+let currentQIndex = 0;
+let currentMode = 'friendly'; // 'friendly' or 'story'
+
+let canvas, ctx;
+let gridSize = 20;
+let tileCountX = 45;
+let tileCountY = 25;
+
+let gameLoopInterval = null;
+let timerInterval = null;
+let isPaused = false;
+let gameTimeRemaining = 180;
+let soundEnabled = true;
+
+// Player States
+let p1 = {
+    name: "Red Hero",
+    color: "#f87171",
+    accentColor: "#dc2626",
+    accessory: "crown",
+    body: [],
+    dir: { x: 1, y: 0 },
+    nextDir: { x: 1, y: 0 },
+    score: 0,
+    correct: 0,
+    wrong: 0
+};
+
+let p2 = {
+    name: "Blue Explorer",
+    color: "#38bdf8",
+    accentColor: "#0284c7",
+    accessory: "wizard_hat",
+    body: [],
+    dir: { x: -1, y: 0 },
+    nextDir: { x: -1, y: 0 },
+    score: 0,
+    correct: 0,
+    wrong: 0
+};
+
+// Answer Items & Star Bonus in Canvas
+let foodItems = []; // Array of option foods
+let magicStar = null;
+let particles = [];
+let totalStarsCollected = 0;
+let matchHistory = [];
+
+// Web Audio API Sound Generator
+let audioCtx = null;
+
+function initAudio() {
+    if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+    }
+}
+
+function playTone(freq, type, duration) {
+    if (!soundEnabled) return;
+    initAudio();
+    if (!audioCtx) return;
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    } catch(e) {}
+}
+
+function playSoundEffect(type) {
+    if (type === 'eat_correct') {
+        playTone(523.25, 'sine', 0.1); // C5
+        setTimeout(() => playTone(659.25, 'sine', 0.15), 80); // E5
+        setTimeout(() => playTone(783.99, 'sine', 0.25), 160); // G5
+    } else if (type === 'eat_wrong') {
+        playTone(300, 'sawtooth', 0.15);
+        setTimeout(() => playTone(200, 'sawtooth', 0.3), 120);
+    } else if (type === 'star') {
+        playTone(880, 'triangle', 0.1);
+        setTimeout(() => playTone(1174.66, 'triangle', 0.2), 100);
+    }
+}
+
+function toggleAudio() {
+    soundEnabled = !soundEnabled;
+    const soundIcon = document.getElementById('soundIcon');
+    if (soundEnabled) {
+        soundIcon.className = "fa-solid fa-volume-high";
+    } else {
+        soundIcon.className = "fa-solid fa-volume-xmark";
+    }
+}
+
+// --- INITIALIZATION ---
+window.onload = function() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    
+    // Keyboard Event Listener
+    window.addEventListener('keydown', handleKeyDown);
+    
+    renderQuestionTable();
+};
+
+function selectMode(mode) {
+    currentMode = mode;
+    const btnF = document.getElementById('btnModeFriendly');
+    const btnS = document.getElementById('btnModeStory');
+    if (mode === 'friendly') {
+        btnF.classList.add('border-amber-400');
+        btnF.classList.remove('border-transparent');
+        btnS.classList.remove('border-amber-400');
+        btnS.classList.add('border-transparent');
+    } else {
+        btnS.classList.add('border-amber-400');
+        btnS.classList.remove('border-transparent');
+        btnF.classList.remove('border-amber-400');
+        btnF.classList.add('border-transparent');
+    }
+}
+
+// --- START GAME MATCH ---
+function startGame() {
+    initAudio();
+    
+    p1.name = document.getElementById('p1NameInput').value || "Red Hero";
+    p2.name = document.getElementById('p2NameInput').value || "Blue Explorer";
+    
+    document.getElementById('p1DisplayTitle').innerText = p1.name;
+    document.getElementById('p2DisplayTitle').innerText = p2.name;
+
+    // Reset Player Stats
+    p1.score = 0; p1.correct = 0; p1.wrong = 0;
+    p2.score = 0; p2.correct = 0; p2.wrong = 0;
+    totalStarsCollected = 0;
+
+    // Reset Snake Positions
+    p1.body = [
+        { x: 5, y: 12 },
+        { x: 4, y: 12 },
+        { x: 3, y: 12 }
+    ];
+    p1.dir = { x: 1, y: 0 };
+    p1.nextDir = { x: 1, y: 0 };
+
+    p2.body = [
+        { x: 39, y: 12 },
+        { x: 40, y: 12 },
+        { x: 41, y: 12 }
+    ];
+    p2.dir = { x: -1, y: 0 };
+    p2.nextDir = { x: -1, y: 0 };
+
+    // Shuffle Questions
+    activeQuestions = [...questionsBank].sort(() => Math.random() - 0.5);
+    currentQIndex = 0;
+
+    // Timer setup
+    gameTimeRemaining = parseInt(document.getElementById('settingTimer').value) || 180;
+    updateTimerDisplay();
+
+    // Switch Screens
+    document.getElementById('screenMenu').classList.add('hidden');
+    document.getElementById('screenResults').classList.add('hidden');
+    document.getElementById('screenGame').classList.remove('hidden');
+
+    loadQuestion(currentQIndex);
+
+    // Start Game Loops
+    clearInterval(gameLoopInterval);
+    clearInterval(timerInterval);
+    
+    const speed = parseInt(document.getElementById('settingSpeed').value) || 120;
+    gameLoopInterval = setInterval(gameStep, speed);
+    
+    timerInterval = setInterval(() => {
+        if (!isPaused) {
+            gameTimeRemaining--;
+            updateTimerDisplay();
+            if (gameTimeRemaining <= 0) {
+                endGame();
+            }
+        }
+    }, 1000);
+}
+
+// --- QUESTION & FOOD SPAWNING ---
+function loadQuestion(index) {
+    if (index >= activeQuestions.length) {
+        // Reshuffle if reached end
+        activeQuestions = [...questionsBank].sort(() => Math.random() - 0.5);
+        currentQIndex = 0;
+        index = 0;
+    }
+
+    const q = activeQuestions[index];
+    document.getElementById('displayQuestionProgress').innerText = `Question ${index + 1} / ${activeQuestions.length}`;
+    document.getElementById('displayQuestionText').innerText = q.question;
+    document.getElementById('displayIndoHint').innerText = q.tip ? `💡 Tip: ${q.tip}` : '';
+
+    // Update level theme UI
+    const lvlIndex = Math.min(Math.floor(index / 2), fairyTaleLevels.length - 1);
+    const lvl = fairyTaleLevels[lvlIndex];
+    document.getElementById('displayLevelName').innerHTML = `<i class="fa-solid ${lvl.icon}"></i> Level ${lvl.level}: ${lvl.name}`;
+
+    spawnAnswerFoods(q);
+    spawnMagicStar();
+}
+
+function spawnAnswerFoods(q) {
+    foodItems = [];
+    const options = [...q.options];
+    
+    // Spawn foods randomly on grid without colliding with snakes
+    options.forEach((optText, i) => {
+        let pos = getRandomFreeTile();
+        foodItems.push({
+            x: pos.x,
+            y: pos.y,
+            text: optText,
+            isCorrect: optText.trim().toLowerCase() === q.correct.trim().toLowerCase(),
+            color: i === 0 ? '#f59e0b' : i === 1 ? '#ec4899' : '#8b5cf6'
+        });
+    });
+}
+
+function spawnMagicStar() {
+    if (Math.random() < 0.6) {
+        let pos = getRandomFreeTile();
+        magicStar = { x: pos.x, y: pos.y };
+    } else {
+        magicStar = null;
+    }
+}
+
+function getRandomFreeTile() {
+    let attempts = 0;
+    while (attempts < 200) {
+        let rx = Math.floor(Math.random() * tileCountX);
+        let ry = Math.floor(Math.random() * tileCountY);
+
+        let occupied = false;
+        // Check P1 body collision
+        for (let seg of p1.body) {
+            if (seg.x === rx && seg.y === ry) { occupied = true; break; }
+        }
+        // Check P2 body collision
+        if (!occupied) {
+            for (let seg of p2.body) {
+                if (seg.x === rx && seg.y === ry) { occupied = true; break; }
+            }
+        }
+        // Check existing food items
+        if (!occupied) {
+            for (let food of foodItems) {
+                if (food.x === rx && food.y === ry) { occupied = true; break; }
+            }
+        }
+
+        if (!occupied) return { x: rx, y: ry };
+        attempts++;
+    }
+    return { x: 5, y: 5 };
+}
+
+// --- IFP TOUCH CONTROL HANDLERS ---
+function triggerP1Dir(dx, dy) {
+    if (isPaused) return;
+    if (dx !== 0 && p1.dir.x !== -dx) p1.nextDir = { x: dx, y: 0 };
+    if (dy !== 0 && p1.dir.y !== -dy) p1.nextDir = { x: 0, y: dy };
+}
+
+function triggerP2Dir(dx, dy) {
+    if (isPaused) return;
+    if (dx !== 0 && p2.dir.x !== -dx) p2.nextDir = { x: dx, y: 0 };
+    if (dy !== 0 && p2.dir.y !== -dy) p2.nextDir = { x: 0, y: dy };
+}
+
+// --- GAME CONTROL LISTENERS ---
+function handleKeyDown(e) {
+    if (isPaused) return;
+
+    // Player 1 (WASD)
+    if ((e.key === 'w' || e.key === 'W') && p1.dir.y !== 1) p1.nextDir = { x: 0, y: -1 };
+    if ((e.key === 's' || e.key === 'S') && p1.dir.y !== -1) p1.nextDir = { x: 0, y: 1 };
+    if ((e.key === 'a' || e.key === 'A') && p1.dir.x !== 1) p1.nextDir = { x: -1, y: 0 };
+    if ((e.key === 'd' || e.key === 'D') && p1.dir.x !== -1) p1.nextDir = { x: 1, y: 0 };
+
+    // Player 2 (Arrow Keys)
+    if (e.key === 'ArrowUp' && p2.dir.y !== 1) p2.nextDir = { x: 0, y: -1 };
+    if (e.key === 'ArrowDown' && p2.dir.y !== -1) p2.nextDir = { x: 0, y: 1 };
+    if (e.key === 'ArrowLeft' && p2.dir.x !== 1) p2.nextDir = { x: -1, y: 0 };
+    if (e.key === 'ArrowRight' && p2.dir.x !== -1) p2.nextDir = { x: 1, y: 0 };
+}
+
+// --- MAIN GAME LOOP ---
+function gameStep() {
+    if (isPaused) return;
+
+    p1.dir = { ...p1.nextDir };
+    p2.dir = { ...p2.nextDir };
+
+    // Move Snakes
+    moveSnake(p1);
+    moveSnake(p2);
+
+    // Collision Checks
+    checkFoodCollisions(p1, 'p1');
+    checkFoodCollisions(p2, 'p2');
+    checkStarCollision(p1, 'p1');
+    checkStarCollision(p2, 'p2');
+
+    // Update Particles
+    updateParticles();
+
+    // Render Frame
+    renderCanvas();
+    updateScoreUI();
+}
+
+function moveSnake(player) {
+    let head = { x: player.body[0].x + player.dir.x, y: player.body[0].y + player.dir.y };
+
+    // Wrap around screen boundaries
+    if (head.x < 0) head.x = tileCountX - 1;
+    if (head.x >= tileCountX) head.x = 0;
+    if (head.y < 0) head.y = tileCountY - 1;
+    if (head.y >= tileCountY) head.y = 0;
+
+    player.body.unshift(head);
+    player.body.pop();
+}
+
+// --- FOOD COLLISION & ANSWER EVALUATION ---
+function checkFoodCollisions(player, playerKey) {
+    let head = player.body[0];
+    
+    for (let i = 0; i < foodItems.length; i++) {
+        let food = foodItems[i];
+        if (head.x === food.x && head.y === food.y) {
+            // Player ate food answer!
+            if (food.isCorrect) {
+                // CORRECT ANSWER
+                player.score += 10;
+                player.correct++;
+                growSnake(player, 2);
+                createStarParticles(food.x * gridSize + 10, food.y * gridSize + 10);
+                playSoundEffect('eat_correct');
+                
+                showFeedback(true, `Great job ${player.name}! WAS/WERE answer is correct!`);
+                nextQuestion();
+            } else {
+                // WRONG ANSWER
+                player.wrong++;
+                shrinkSnake(player);
+                playSoundEffect('eat_wrong');
+                
+                const curQ = activeQuestions[currentQIndex];
+                showFeedback(false, `Oops! ${player.name} picked wrong answer. ${curQ.tip}`);
+                // Remove wrong food item from board
+                foodItems.splice(i, 1);
+            }
+            break;
+        }
+    }
+}
+
+function checkStarCollision(player, playerKey) {
+    if (!magicStar) return;
+    let head = player.body[0];
+    if (head.x === magicStar.x && head.y === magicStar.y) {
+        player.score += 5;
+        totalStarsCollected++;
+        playSoundEffect('star');
+        createStarParticles(magicStar.x * gridSize + 10, magicStar.y * gridSize + 10);
+        magicStar = null;
+    }
+}
+
+function growSnake(player, amount) {
+    let tail = player.body[player.body.length - 1];
+    for (let i = 0; i < amount; i++) {
+        player.body.push({ ...tail });
+    }
+}
+
+function shrinkSnake(player) {
+    if (player.body.length > 2) {
+        player.body.pop();
+    }
+}
+
+function nextQuestion() {
+    currentQIndex++;
+    loadQuestion(currentQIndex);
+}
+
+// --- CANVAS RENDERING ---
+function renderCanvas() {
+    const lvlIndex = Math.min(Math.floor(currentQIndex / 2), fairyTaleLevels.length - 1);
+    const theme = fairyTaleLevels[lvlIndex];
+
+    // Background Gradient
+    let bgGrad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    bgGrad.addColorStop(0, theme.bgGradient[0]);
+    bgGrad.addColorStop(1, theme.bgGradient[1]);
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Subtle Grid
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.04)";
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= canvas.width; x += gridSize) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke();
+    }
+    for (let y = 0; y <= canvas.height; y += gridSize) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
+    }
+
+    // Draw Magic Bonus Star
+    if (magicStar) {
+        ctx.font = "16px sans-serif";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("⭐", magicStar.x * gridSize + gridSize/2, magicStar.y * gridSize + gridSize/2);
+    }
+
+    // Draw Option Answer Foods
+    foodItems.forEach(food => {
+        let cx = food.x * gridSize + gridSize / 2;
+        let cy = food.y * gridSize + gridSize / 2;
+
+        // Shiny Apple / Gem Base
+        ctx.beginPath();
+        ctx.arc(cx, cy, gridSize * 0.95, 0, Math.PI * 2);
+        let grad = ctx.createRadialGradient(cx - 3, cy - 3, 2, cx, cy, gridSize * 0.95);
+        grad.addColorStop(0, '#ffffff');
+        grad.addColorStop(0.3, food.color);
+        grad.addColorStop(1, '#1e1b4b');
+        ctx.fillStyle = grad;
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Answer Label Text
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 12px Quicksand";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(food.text, cx, cy);
+    });
+
+    // Draw Realistic Segmented Worms with Head Accessories
+    drawRealisticWorm(p1);
+    drawRealisticWorm(p2);
+
+    // Draw Particle FX
+    particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+    });
+}
+
+/**
+ * REALISTIC MULTI-SEGMENTED WORM RENDERING WITH HEAD PIECES
+ */
+function drawRealisticWorm(player) {
+    const totalSegs = player.body.length;
+
+    // 1. Draw Body Segments (From Tail to Head)
+    for (let i = totalSegs - 1; i >= 0; i--) {
+        let seg = player.body[i];
+        let px = seg.x * gridSize + gridSize / 2;
+        let py = seg.y * gridSize + gridSize / 2;
+
+        // Segment Tapering from head to tail
+        let progress = i / totalSegs; // 0 at head, 1 at tail
+        let segRadius = (gridSize * 0.65) * (1 - progress * 0.35);
+        if (i === 0) segRadius = gridSize * 0.75; // Head size
+
+        // Organic Segment Radial Shading
+        let segGrad = ctx.createRadialGradient(
+            px - segRadius * 0.3, py - segRadius * 0.3, segRadius * 0.1,
+            px, py, segRadius
+        );
+        segGrad.addColorStop(0, '#ffffff');
+        segGrad.addColorStop(0.25, player.color);
+        segGrad.addColorStop(0.85, player.accentColor);
+        segGrad.addColorStop(1, '#000000');
+
+        ctx.beginPath();
+        ctx.arc(px, py, Math.max(3, segRadius), 0, Math.PI * 2);
+        ctx.fillStyle = segGrad;
+        ctx.fill();
+
+        // Segment Ridge Highlight
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Organic Body Texture Ring Lines
+        if (i > 0 && i % 2 === 0) {
+            ctx.beginPath();
+            ctx.arc(px, py, segRadius * 0.7, 0, Math.PI * 2);
+            ctx.strokeStyle = "rgba(0,0,0,0.2)";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+        }
+    }
+
+    // 2. Draw Head Features (Eyes, Smile & Head Accessory)
+    let head = player.body[0];
+    let hx = head.x * gridSize + gridSize / 2;
+    let hy = head.y * gridSize + gridSize / 2;
+
+    // Orient Eye & Accessory direction based on movement
+    let eyeOffX = player.dir.x * 4;
+    let eyeOffY = player.dir.y * 4;
+
+    // Expressive Eyes
+    let eyeSpacing = player.dir.y !== 0 ? 5 : 0;
+    let eyeYOffset = player.dir.x !== 0 ? -4 : 0;
+
+    // Left Eye
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(hx + eyeOffX - eyeSpacing, hy + eyeOffY + eyeYOffset - 2, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.arc(hx + eyeOffX - eyeSpacing + player.dir.x, hy + eyeOffY + eyeYOffset - 2 + player.dir.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Right Eye
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.arc(hx + eyeOffX + eyeSpacing, hy + eyeOffY + eyeYOffset + 2, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#000000";
+    ctx.beginPath();
+    ctx.arc(hx + eyeOffX + eyeSpacing + player.dir.x, hy + eyeOffY + eyeYOffset + 2 + player.dir.y, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Cute Smile
+    ctx.beginPath();
+    ctx.arc(hx + player.dir.x * 6, hy + player.dir.y * 6 + 2, 3, 0, Math.PI);
+    ctx.strokeStyle = "#000000";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // 2.5. Draw Cute Antennae (Antena Cacing Lucu)
+    [ -6, 6 ].forEach(offset => {
+        let rootX = hx + (player.dir.y * offset);
+        let rootY = hy - (player.dir.x * offset);
+        let tipX = rootX + (player.dir.x * 5) + (player.dir.y * (offset * 0.5));
+        let tipY = rootY + (player.dir.y * 5) - 12;
+
+        // Curved Stem
+        ctx.beginPath();
+        ctx.moveTo(rootX, rootY);
+        ctx.quadraticCurveTo(rootX, tipY, tipX, tipY);
+        ctx.strokeStyle = player.accentColor;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Glowing Antenna Ball Tip
+        ctx.beginPath();
+        ctx.arc(tipX, tipY, 3.5, 0, Math.PI * 2);
+        let antGrad = ctx.createRadialGradient(tipX - 1, tipY - 1, 0.5, tipX, tipY, 3.5);
+        antGrad.addColorStop(0, '#ffffff');
+        antGrad.addColorStop(0.5, player.color);
+        antGrad.addColorStop(1, player.accentColor);
+        ctx.fillStyle = antGrad;
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+    });
+
+    // 3. Draw Unique Head Accessories
+    if (player.accessory === 'crown') {
+        // Red Hero Golden Crown
+        ctx.fillStyle = "#fbbf24";
+        ctx.beginPath();
+        let cx = hx - 7, cy = hy - 14;
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + 4, cy - 6);
+        ctx.lineTo(cx + 7, cy - 2);
+        ctx.lineTo(cx + 10, cy - 6);
+        ctx.lineTo(cx + 14, cy);
+        ctx.lineTo(cx + 12, cy + 5);
+        ctx.lineTo(cx + 2, cy + 5);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#b45309";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    } else if (player.accessory === 'wizard_hat') {
+        // Blue Explorer Wizard Star Hat
+        ctx.fillStyle = "#7e22ce";
+        ctx.beginPath();
+        let wx = hx, wy = hy - 10;
+        ctx.moveTo(wx, wy - 10);
+        ctx.lineTo(wx + 8, wy + 4);
+        ctx.lineTo(wx - 8, wy + 4);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Star Tip
+        ctx.font = "10px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("⭐", wx, wy - 10);
+    }
+}
+
+// --- PARTICLE EFFECTS ---
+function createStarParticles(x, y) {
+    for (let i = 0; i < 12; i++) {
+        particles.push({
+            x: x,
+            y: y,
+            vx: (Math.random() - 0.5) * 4,
+            vy: (Math.random() - 0.5) * 4,
+            size: Math.random() * 4 + 2,
+            color: ['#facc15', '#fbbf24', '#38bdf8', '#f472b6'][Math.floor(Math.random() * 4)],
+            life: 25
+        });
+    }
+}
+
+function updateParticles() {
+    for (let i = particles.length - 1; i >= 0; i--) {
+        let p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        if (p.life <= 0) particles.splice(i, 1);
+    }
+}
+
+// --- UI UPDATES & FEEDBACK ---
+function updateScoreUI() {
+    document.getElementById('p1Score').innerText = p1.score;
+    document.getElementById('p2Score').innerText = p2.score;
+}
+
+function updateTimerDisplay() {
+    let min = Math.floor(gameTimeRemaining / 60);
+    let sec = gameTimeRemaining % 60;
+    document.getElementById('gameTimer').innerText = `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+}
+
+function showFeedback(isCorrect, message) {
+    isPaused = true;
+    const modal = document.getElementById('feedbackModal');
+    const icon = document.getElementById('feedbackIcon');
+    const title = document.getElementById('feedbackTitle');
+    const text = document.getElementById('feedbackText');
+
+    if (isCorrect) {
+        icon.innerText = "🌟";
+        title.innerText = "EXCELLENT!";
+        title.className = "text-2xl font-game text-emerald-300 mb-2";
+    } else {
+        icon.innerText = "💡";
+        title.innerText = "KEEP LEARNING!";
+        title.className = "text-2xl font-game text-amber-400 mb-2";
+    }
+    text.innerText = message;
+    modal.classList.remove('hidden');
+}
+
+function closeFeedback() {
+    document.getElementById('feedbackModal').classList.add('hidden');
+    isPaused = false;
+}
+
+function pauseGame() {
+    isPaused = !isPaused;
+    const btn = document.getElementById('pauseBtnIcon');
+    btn.className = isPaused ? "fa-solid fa-play" : "fa-solid fa-pause";
+}
+
+function showMenu() {
+    clearInterval(gameLoopInterval);
+    clearInterval(timerInterval);
+    document.getElementById('screenGame').classList.add('hidden');
+    document.getElementById('screenResults').classList.add('hidden');
+    document.getElementById('screenMenu').classList.remove('hidden');
+}
+
+// --- GAME OVER & RESULTS ---
+function endGame() {
+    clearInterval(gameLoopInterval);
+    clearInterval(timerInterval);
+
+    document.getElementById('screenGame').classList.add('hidden');
+    document.getElementById('screenResults').classList.remove('hidden');
+
+    document.getElementById('resP1Name').innerText = p1.name;
+    document.getElementById('resP1Score').innerText = p1.score;
+    document.getElementById('resP1Correct').innerText = p1.correct;
+    document.getElementById('resP1Wrong').innerText = p1.wrong;
+
+    document.getElementById('resP2Name').innerText = p2.name;
+    document.getElementById('resP2Score').innerText = p2.score;
+    document.getElementById('resP2Correct').innerText = p2.correct;
+    document.getElementById('resP2Wrong').innerText = p2.wrong;
+
+    document.getElementById('resTotalStars').innerText = totalStarsCollected;
+    let elapsedSec = (parseInt(document.getElementById('settingTimer').value) || 180) - gameTimeRemaining;
+    let min = Math.floor(elapsedSec / 60);
+    let sec = elapsedSec % 60;
+    document.getElementById('resTimeTaken').innerText = `${min}:${sec.toString().padStart(2, '0')}`;
+
+    // Announce Winner
+    const winMsg = document.getElementById('winnerAnnouncement');
+    if (p1.score > p2.score) {
+        winMsg.innerText = `🎉 Congratulations! ${p1.name} is the Fairy Tale Champion!`;
+        winMsg.className = "text-lg text-red-400 font-bold mb-6";
+    } else if (p2.score > p1.score) {
+        winMsg.innerText = `🎉 Congratulations! ${p2.name} is the Fairy Tale Champion!`;
+        winMsg.className = "text-lg text-cyan-400 font-bold mb-6";
+    } else {
+        winMsg.innerText = "🤝 Fantastic! It is a DRAW!";
+        winMsg.className = "text-lg text-amber-300 font-bold mb-6";
+    }
+
+    // Record Match History
+    let accuracy = Math.round(((p1.correct + p2.correct) / Math.max(1, (p1.correct + p1.wrong + p2.correct + p2.wrong))) * 100);
+    matchHistory.unshift({
+        date: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        p1Str: `${p1.name} (${p1.score}pts)`,
+        p2Str: `${p2.name} (${p2.score}pts)`,
+        winner: p1.score > p2.score ? p1.name : p2.score > p1.score ? p2.name : "Draw",
+        accuracy: `${accuracy}%`
+    });
+
+    renderAnalyticsTable();
+}
+
+// --- TEACHER DASHBOARD LOGIC ---
+function openTeacherDashboard() {
+    document.getElementById('modalTeacher').classList.remove('hidden');
+    renderQuestionTable();
+    renderAnalyticsTable();
+}
+
+function closeTeacherDashboard() {
+    document.getElementById('modalTeacher').classList.add('hidden');
+}
+
+function switchTeacherTab(tabName) {
+    document.getElementById('tabQuestions').classList.add('hidden');
+    document.getElementById('tabAnalytics').classList.add('hidden');
+    document.getElementById('tabSettings').classList.add('hidden');
+
+    document.getElementById('tabBtnQuestions').className = "px-4 py-2 text-sm font-bold rounded-t-xl text-purple-300 hover:text-white";
+    document.getElementById('tabBtnAnalytics').className = "px-4 py-2 text-sm font-bold rounded-t-xl text-purple-300 hover:text-white";
+    document.getElementById('tabBtnSettings').className = "px-4 py-2 text-sm font-bold rounded-t-xl text-purple-300 hover:text-white";
+
+    if (tabName === 'questions') {
+        document.getElementById('tabQuestions').classList.remove('hidden');
+        document.getElementById('tabBtnQuestions').className = "px-4 py-2 text-sm font-bold rounded-t-xl bg-amber-500 text-purple-950";
+    } else if (tabName === 'analytics') {
+        document.getElementById('tabAnalytics').classList.remove('hidden');
+        document.getElementById('tabBtnAnalytics').className = "px-4 py-2 text-sm font-bold rounded-t-xl bg-amber-500 text-purple-950";
+    } else if (tabName === 'settings') {
+        document.getElementById('tabSettings').classList.remove('hidden');
+        document.getElementById('tabBtnSettings').className = "px-4 py-2 text-sm font-bold rounded-t-xl bg-amber-500 text-purple-950";
+    }
+}
+
+function renderQuestionTable() {
+    const tbody = document.getElementById('questionTableBody');
+    document.getElementById('qCount').innerText = questionsBank.length;
+    tbody.innerHTML = "";
+
+    questionsBank.forEach((q, idx) => {
+        let tr = document.createElement('tr');
+        tr.className = "hover:bg-purple-900/30";
+        tr.innerHTML = `
+            <td class="p-3 font-bold">${idx + 1}</td>
+            <td class="p-3 font-semibold text-white">${q.question}</td>
+            <td class="p-3 text-purple-300">${q.options.join(', ')}</td>
+            <td class="p-3"><span class="bg-emerald-900 text-emerald-300 px-2 py-0.5 rounded font-bold">${q.correct}</span></td>
+            <td class="p-3 text-right space-x-2">
+                <button onclick="editQuestion(${idx})" class="text-amber-400 hover:text-amber-300"><i class="fa-solid fa-pen-to-square"></i> Edit</button>
+                <button onclick="deleteQuestion(${idx})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i> Delete</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function openQuestionForm(editIndex = -1) {
+    document.getElementById('modalQuestionForm').classList.remove('hidden');
+    document.getElementById('qEditIndex').value = editIndex;
+
+    if (editIndex >= 0) {
+        let q = questionsBank[editIndex];
+        document.getElementById('qFormTitle').innerText = "Edit Question";
+        document.getElementById('qInputText').value = q.question;
+        document.getElementById('qInputOptA').value = q.options[0] || 'was';
+        document.getElementById('qInputOptB').value = q.options[1] || 'were';
+        document.getElementById('qInputOptC').value = q.options[2] || 'is';
+        document.getElementById('qInputCorrect').value = q.correct;
+        document.getElementById('qInputTip').value = q.tip || '';
+    } else {
+        document.getElementById('qFormTitle').innerText = "Add New Question";
+        document.getElementById('formQuestion').reset();
+    }
+}
+
+function closeQuestionForm() {
+    document.getElementById('modalQuestionForm').classList.add('hidden');
+}
+
+function saveQuestion(e) {
+    e.preventDefault();
+    let idx = parseInt(document.getElementById('qEditIndex').value);
+    let qObj = {
+        id: idx >= 0 ? questionsBank[idx].id : Date.now(),
+        question: document.getElementById('qInputText').value,
+        options: [
+            document.getElementById('qInputOptA').value,
+            document.getElementById('qInputOptB').value,
+            document.getElementById('qInputOptC').value
+        ],
+        correct: document.getElementById('qInputCorrect').value,
+        tip: document.getElementById('qInputTip').value
+    };
+
+    if (idx >= 0) {
+        questionsBank[idx] = qObj;
+    } else {
+        questionsBank.push(qObj);
+    }
+
+    closeQuestionForm();
+    renderQuestionTable();
+}
+
+function editQuestion(idx) {
+    openQuestionForm(idx);
+}
+
+function deleteQuestion(idx) {
+    if (confirm("Are you sure you want to delete this question?")) {
+        questionsBank.splice(idx, 1);
+        renderQuestionTable();
+    }
+}
+
+function renderAnalyticsTable() {
+    document.getElementById('statTotalGames').innerText = matchHistory.length;
+    let avgAcc = matchHistory.length > 0 
+        ? Math.round(matchHistory.reduce((acc, cur) => acc + parseInt(cur.accuracy), 0) / matchHistory.length) 
+        : 0;
+    document.getElementById('statAvgAccuracy').innerText = `${avgAcc}%`;
+
+    const tbody = document.getElementById('analyticsTableBody');
+    if (matchHistory.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-purple-400">No match records yet. Play a game to see stats!</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = "";
+    matchHistory.forEach(h => {
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="p-3 text-purple-300">${h.date}</td>
+            <td class="p-3 text-red-300 font-semibold">${h.p1Str}</td>
+            <td class="p-3 text-cyan-300 font-semibold">${h.p2Str}</td>
+            <td class="p-3 text-amber-300 font-bold">${h.winner}</td>
+            <td class="p-3 text-emerald-400">${h.accuracy}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+function exportResultsCSV() {
+    if (matchHistory.length === 0) {
+        alert("No match history available to export.");
+        return;
+    }
+
+    let csvContent = "data:text/csv;charset=utf-8,Time,Player 1,Player 2,Winner,Accuracy\n";
+    matchHistory.forEach(r => {
+        csvContent += `"${r.date}","${r.p1Str}","${r.p2Str}","${r.winner}","${r.accuracy}"\n`;
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "smart_worm_results.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {});
+    } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+    }
+}
+</script>
+</html>
